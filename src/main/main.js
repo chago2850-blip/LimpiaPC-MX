@@ -44,7 +44,7 @@ function createMain() {
   const startHidden = process.argv.includes('--oculto');
   win = new BrowserWindow({
     width: 1240, height: 800, minWidth: 980, minHeight: 640,
-    title: 'LimpiaPc-MX', icon: path.join(ASSETS, 'icon-256.png'),
+    title: 'LimpiaPc-MX', icon: path.join(ASSETS, 'icons', '512x512.png'),
     backgroundColor: '#120d2e', show: false,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     autoHideMenuBar: true,
@@ -257,8 +257,28 @@ function setLaunchAtLogin(v) {
   }
 }
 
+// En Linux con AppImage no se instala lanzador: lo registramos para que el
+// escritorio muestre el logo (y no un engrane) en el dock y el menú.
+function integrateLinuxDesktop() {
+  if (process.platform !== 'linux' || !process.env.APPIMAGE) return;
+  try {
+    const share = U.XDG_DATA;
+    for (const s of [16, 24, 32, 48, 64, 128, 256, 512]) {
+      const src = path.join(ASSETS, 'icons', `${s}x${s}.png`);
+      const dst = path.join(share, 'icons', 'hicolor', `${s}x${s}`, 'apps', 'limpiapc-mx.png');
+      if (U.fs.existsSync(src)) { U.fs.mkdirSync(path.dirname(dst), { recursive: true }); U.fs.copyFileSync(src, dst); }
+    }
+    const desk = path.join(share, 'applications', 'limpiapc-mx.desktop');
+    U.fs.mkdirSync(path.dirname(desk), { recursive: true });
+    U.fs.writeFileSync(desk, `[Desktop Entry]\nName=LimpiaPc-MX\nComment=Limpia, protege y acelera tu computadora\nExec="${process.env.APPIMAGE}" %U\nIcon=limpiapc-mx\nType=Application\nTerminal=false\nCategories=System;Utility;\nStartupWMClass=limpiapc-mx\n`);
+    U.run('update-desktop-database', [path.dirname(desk)]);
+    U.run('gtk-update-icon-cache', ['-f', '-t', path.join(share, 'icons', 'hicolor')]);
+  } catch (e) { console.error('Integración de escritorio:', e.message); }
+}
+
 app.whenReady().then(() => {
   store.load();
+  integrateLinuxDesktop();
   const th = store.get('theme');
   nativeTheme.themeSource = th === 'auto' ? 'system' : th;
   Menu.setApplicationMenu(process.platform === 'darwin' ? Menu.buildFromTemplate([
