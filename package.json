@@ -1,0 +1,142 @@
+{
+  "name": "limpiapc-mx",
+  "productName": "LimpiaPc-MX",
+  "version": "1.0.0",
+  "description": "Suite integral y libre de mantenimiento para tu computadora: limpieza, protección, rendimiento, aplicaciones, desorden, lente de espacio y más. Para macOS, Windows y Linux.",
+  "main": "src/main/main.js",
+  "homepage": "https://github.com/chago2850-blip/LimpiaPc-MX",
+  "author": {
+    "name": "Santiago Miguel",
+    "email": "chago2850@gmail.com"
+  },
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node scripts/selftest.js",
+    "dist": "electron-builder",
+    "dist:linux": "electron-builder --linux",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac"
+  },
+  "dependencies": {
+    "@vscode/sudo-prompt": "^9.3.2",
+    "d3-hierarchy": "^3.1.2",
+    "systeminformation": "^5.33.23"
+  },
+  "devDependencies": {
+    "electron": "^45.3.3",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "mx.limpiapc.app",
+    "productName": "LimpiaPc-MX",
+    "copyright": "© 2026 Santiago Miguel — GPL-3.0-or-later",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "LICENSE",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "publish": null,
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "hardenedRuntime": false,
+      "identity": "-"
+    },
+    "dmg": {
+      "title": "LimpiaPc-MX ${version}"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "LimpiaPc-MX",
+      "license": "build/LICENSE.txt",
+      "language": "3082"
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-win-portable.${ext}"
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "System",
+      "synopsis": "Mantenimiento integral de la computadora",
+      "maintainer": "Santiago Miguel <chago2850@gmail.com>",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "rpm",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "desktop": {
+        "entry": {
+          "Name": "LimpiaPc-MX",
+          "Comment": "Limpia, protege y acelera tu computadora",
+          "Keywords": "limpiar;cache;basura;mantenimiento;malware;"
+        }
+      }
+    },
+    "deb": {
+      "depends": [
+        "libnotify4",
+        "libxtst6",
+        "libnss3"
+      ]
+    }
+  }
+}

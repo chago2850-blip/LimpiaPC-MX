@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<!-- LimpiaPc-MX · SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: file:; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>LimpiaPc-MX</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand"><img src="../../assets/logo-512.png" alt=""><div><b>LimpiaPc-MX</b><small>Mantenimiento libre</small></div></div>
+      <nav class="nav" id="nav"></nav>
+      <div class="side-foot">
+        <div class="mini-stat"><div class="row"><span>Disco</span><span class="spacer"></span><span id="sf-disk">—</span></div><div class="bar"><i id="sf-disk-bar" style="width:0"></i></div></div>
+        <div class="mini-stat"><div class="row"><span>RAM</span><span class="spacer"></span><span id="sf-ram">—</span></div><div class="bar"><i id="sf-ram-bar" style="width:0"></i></div></div>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <button class="btn icon ghost" id="tb-screen" title="Modo limpieza de pantalla"></button>
+        <button class="btn icon ghost" id="tb-bell" title="Centro de notificaciones"></button>
+      </div>
+      <section class="view" id="view"></section>
+    </main>
+  </div>
+  <div class="tip" id="tip"></div>
+  <script src="../../node_modules/d3-hierarchy/dist/d3-hierarchy.min.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="modules/home.js"></script>
+  <script src="modules/smartcare.js"></script>
+  <script src="modules/cleanup.js"></script>
+  <script src="modules/protection.js"></script>
+  <script src="modules/performance.js"></script>
+  <script src="modules/apps.js"></script>
+  <script src="modules/clutter.js"></script>
+  <script src="modules/spacelens.js"></script>
+  <script src="modules/cloud.js"></script>
+  <script src="modules/tools.js"></script>
+  <script src="modules/shredder.js"></script>
+  <script src="modules/misc.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

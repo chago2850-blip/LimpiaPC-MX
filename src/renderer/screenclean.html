@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<!-- LimpiaPc-MX · modo limpieza de pantalla · SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="es"><head><meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; cursor: none; overflow: hidden; font-family: system-ui, sans-serif; user-select: none; }
+  .msg { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,.55); text-align: center; transition: opacity 1.2s; }
+  .msg b { display: block; font-size: 28px; color: rgba(255,255,255,.8); margin-bottom: 10px; font-weight: 600; }
+  .hold { position: absolute; left: 50%; bottom: 60px; transform: translateX(-50%); width: 280px; height: 6px; border-radius: 6px; background: rgba(255,255,255,.12); overflow: hidden; opacity: 0; transition: opacity .3s; }
+  .hold i { display: block; height: 100%; width: 0; background: linear-gradient(90deg,#8b5cf6,#22d3ee); }
+</style></head>
+<body><div class="msg" id="msg"><div><b>Modo limpieza de pantalla</b>Teclado, ratón y panel táctil están bloqueados.<br>Mantén presionada <b style="display:inline;font-size:inherit">Esc</b> durante 3 segundos para salir.</div></div>
+<div class="hold" id="hold"><i id="bar"></i></div>
+<script src="js/screenclean.js"></script></body></html>
