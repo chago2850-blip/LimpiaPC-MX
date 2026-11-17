@@ -20,9 +20,10 @@ jobs:
             target: --linux
           - os: windows-latest
             target: --win
-          - os: macos-latest
+          - os: macos-15-intel
             target: --mac
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -54,6 +55,7 @@ jobs:
 
   release:
     needs: build
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
