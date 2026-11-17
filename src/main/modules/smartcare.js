@@ -17,7 +17,7 @@ async function scan(onProgress = () => {}) {
   onProgress({ phase: 'protection', step: 'Buscando amenazas…', pct: 38 });
   res.protection = await protection.scanMalware('quick', p => onProgress({ phase: 'protection', step: p.step, pct: 50 }));
   onProgress({ phase: 'performance', step: 'Revisando rendimiento…', pct: 65 });
-  const tasks = performance.tasks().filter(t => t.recommended);
+  const tasks = (await performance.tasksWithStatus()).filter(t => t.recommended && t.available);
   const startup = await performance.listStartup().catch(() => []);
   res.performance = { tasks, startupCount: startup.filter(s => s.enabled).length };
   onProgress({ phase: 'apps', step: 'Buscando actualizaciones…', pct: 75 });
@@ -42,7 +42,7 @@ async function run(plan, onProgress = () => {}) {
     const r = await protection.quarantine(plan.threats); out.quarantined = r.ok;
   }
   if (plan.tasks && plan.tasks.length) {
-    const all = performance.tasks().filter(t => plan.tasks.includes(t.id));
+    const all = (await performance.tasksWithStatus()).filter(t => plan.tasks.includes(t.id) && t.available);
     const admin = all.filter(t => t.admin && t.cmd);
     for (const t of all.filter(t => !t.admin)) {
       onProgress({ phase: 'performance', step: t.name, pct: 70 });
@@ -63,15 +63,15 @@ async function run(plan, onProgress = () => {}) {
 
 // ---------------- Acciones rápidas (bandeja y flujos de trabajo) ----------------
 const QUICK = {
-  'clean-safe': { name: 'Limpiar basura segura', fn: async () => { const s = await cleanup.scan(() => {}, { onlySafe: true }); const sel = {}; s.filter(c => c.id !== 'trash').forEach(c => { if (c.bytes) sel[c.id] = true; }); return cleanup.clean(sel); } },
-  'empty-trash': { name: 'Vaciar papelera', fn: () => cleanup.clean({ trash: true }) },
-  'browser-cache': { name: 'Limpiar cachés de navegadores', fn: () => cleanup.clean({ browsers: true }) },
-  'dev-cache': { name: 'Limpiar cachés de desarrollo', fn: () => cleanup.clean({ dev: true }) },
-  'quick-scan': { name: 'Análisis rápido de malware', fn: () => protection.scanMalware('quick') },
+  'clean-safe': { name: 'Limpiar basura segura', desc: 'Borra cachés, registros, informes de fallos y temporales que el sistema regenera solo. No toca tus archivos ni la papelera.', fn: async () => { const s = await cleanup.scan(() => {}, { onlySafe: true }); const sel = {}; s.filter(c => c.id !== 'trash').forEach(c => { if (c.bytes) sel[c.id] = true; }); return cleanup.clean(sel); } },
+  'empty-trash': { name: 'Vaciar papelera', desc: 'Elimina definitivamente todo lo que está en la papelera de reciclaje.', fn: () => cleanup.clean({ trash: true }) },
+  'browser-cache': { name: 'Limpiar cachés de navegadores', desc: 'Borra la caché de Chrome, Edge, Firefox, Brave, Safari y Opera. No borra historial, contraseñas ni sesiones.', fn: () => cleanup.clean({ browsers: true }) },
+  'dev-cache': { name: 'Limpiar cachés de desarrollo', desc: 'Vacía las cachés de npm, pip, Yarn, Gradle, Go, Cargo y NuGet. Se vuelven a descargar cuando se necesitan.', fn: () => cleanup.clean({ dev: true }) },
+  'quick-scan': { name: 'Análisis rápido de malware', desc: 'Revisa elementos de inicio, Descargas y temporales en busca de malware y adware.', fn: () => protection.scanMalware('quick') },
 };
-function quickActions() {
-  const list = Object.entries(QUICK).map(([id, q]) => ({ id, name: q.name }));
-  for (const t of performance.tasks()) list.push({ id: t.id, name: t.name, admin: t.admin });
+async function quickActions() {
+  const list = Object.entries(QUICK).map(([id, q]) => ({ id, name: q.name, desc: q.desc, available: true }));
+  for (const t of await performance.tasksWithStatus()) list.push({ id: t.id, name: t.name, desc: t.desc, admin: t.admin, available: t.available, unavailableReason: t.unavailableReason });
   return list;
 }
 async function runQuick(id) {

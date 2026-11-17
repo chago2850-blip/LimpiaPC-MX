@@ -191,7 +191,7 @@ const API = {
   'performance.startup': () => performance.listStartup(),
   'performance.toggleStartup': (p, item, en) => performance.toggleStartup(item, en),
   'performance.removeStartup': (p, item) => performance.removeStartup(item),
-  'performance.tasks': async () => performance.tasks().map(({ cmd, ps, ...t }) => t),
+  'performance.tasks': async () => (await performance.tasksWithStatus()).map(({ cmd, ps, ...t }) => t),
   'performance.runTask': (p, id) => performance.runTask(id),
   'performance.processes': () => performance.heavyProcesses(),
   'performance.kill': async (p, pid) => performance.killProcess(pid),

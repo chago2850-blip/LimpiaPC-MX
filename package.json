@@ -1,7 +1,7 @@
 {
   "name": "limpiapc-mx",
   "productName": "LimpiaPc-MX",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Suite integral y libre de mantenimiento para tu computadora: limpieza, protección, rendimiento, aplicaciones, desorden, lente de espacio y más. Para macOS, Windows y Linux.",
   "main": "src/main/main.js",
   "homepage": "https://github.com/chago2850-blip/LimpiaPc-MX",

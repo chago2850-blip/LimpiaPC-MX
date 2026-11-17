@@ -170,7 +170,7 @@ function tasks() {
   if (IS_MAC) {
     t({ id: 'free-ram', name: 'Liberar memoria RAM', desc: 'Purga la memoria inactiva para dar espacio a nuevas apps.', admin: true, recommended: true, cmd: 'purge' });
     t({ id: 'flush-dns', name: 'Vaciar caché DNS', desc: 'Resuelve problemas de conexión y páginas que no cargan.', admin: true, recommended: true, cmd: 'dscacheutil -flushcache; killall -HUP mDNSResponder' });
-    t({ id: 'scripts', name: 'Scripts de mantenimiento', desc: 'Rota registros y depura bases temporales del sistema.', admin: true, recommended: true, cmd: 'periodic daily weekly monthly 2>/dev/null || true' });
+    t({ requires: ['periodic'], hint: 'Esta versión de macOS ya no incluye los scripts periodic; el sistema los ejecuta solo.', id: 'scripts', name: 'Scripts de mantenimiento', desc: 'Rota registros y depura bases temporales del sistema.', admin: true, recommended: true, cmd: 'periodic daily weekly monthly 2>/dev/null || true' });
     t({ id: 'spotlight', name: 'Reindexar Spotlight', desc: 'Arregla búsquedas lentas o incompletas.', admin: true, cmd: 'mdutil -E /' });
     t({ id: 'launchservices', name: 'Reconstruir Launch Services', desc: 'Corrige menús "Abrir con" duplicados.', cmd: '/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user' });
     t({ id: 'permissions', name: 'Reparar permisos de usuario', desc: 'Restablece los permisos de tu carpeta personal.', cmd: 'diskutil resetUserPermissions / $(id -u)' });
@@ -182,13 +182,15 @@ function tasks() {
   if (IS_LINUX) {
     t({ id: 'free-ram', name: 'Liberar memoria RAM', desc: 'Sincroniza discos y vacía cachés de página del kernel.', admin: true, recommended: true, cmd: 'sync; echo 3 > /proc/sys/vm/drop_caches' });
     t({ id: 'flush-dns', name: 'Vaciar caché DNS', desc: 'Limpia la caché de systemd-resolved.', recommended: true, cmd: 'resolvectl flush-caches 2>/dev/null || systemd-resolve --flush-caches 2>/dev/null || true' });
-    t({ id: 'trim', name: 'Optimizar SSD (TRIM)', desc: 'Informa al SSD de los bloques libres.', admin: true, recommended: true, cmd: 'fstrim -av' });
+    t({ requires: ['fstrim'], id: 'trim', name: 'Optimizar SSD (TRIM)', desc: 'Informa al SSD de los bloques libres.', admin: true, recommended: true, cmd: 'fstrim -av' });
     t({ id: 'autoremove', name: 'Quitar paquetes huérfanos', desc: 'Elimina dependencias que ya nadie usa.', admin: true, cmd: 'command -v apt-get >/dev/null && apt-get -y autoremove; command -v dnf >/dev/null && dnf -y autoremove; command -v pacman >/dev/null && (pacman -Qdtq | pacman -Rns --noconfirm - ); command -v zypper >/dev/null && zypper -n rm -u; true' });
-    t({ id: 'flatpak', name: 'Quitar runtimes Flatpak sin uso', desc: 'Libera espacio de runtimes huérfanos.', cmd: 'flatpak uninstall --unused -y 2>/dev/null || true' });
-    t({ id: 'snap-old', name: 'Quitar revisiones viejas de Snap', desc: 'Elimina versiones deshabilitadas de snaps.', admin: true, cmd: "snap list --all 2>/dev/null | awk '/disabled/{print $1, $3}' | while read n r; do snap remove \"$n\" --revision=\"$r\"; done; true" });
-    t({ id: 'fonts', name: 'Reconstruir caché de fuentes', desc: 'Ejecuta fc-cache.', cmd: 'fc-cache -f' });
-    t({ id: 'locate', name: 'Actualizar base de búsqueda', desc: 'Reindexa la base de locate/plocate.', admin: true, cmd: 'updatedb' });
-    t({ id: 'journal', name: 'Compactar diario del sistema', desc: 'Deja solo 7 días de registros.', admin: true, cmd: 'journalctl --vacuum-time=7d' });
+    t({ requires: ['flatpak'], hint: 'Flatpak no está instalado en este equipo.', id: 'flatpak', name: 'Quitar runtimes Flatpak sin uso', desc: 'Libera espacio de runtimes huérfanos.', cmd: 'flatpak uninstall --unused -y 2>/dev/null || true' });
+    t({ requires: ['snap'], hint: 'Snap no está instalado en este equipo.', id: 'snap-old', name: 'Quitar revisiones viejas de Snap', desc: 'Elimina versiones deshabilitadas de snaps.', admin: true, cmd: "snap list --all 2>/dev/null | awk '/disabled/{print $1, $3}' | while read n r; do snap remove \"$n\" --revision=\"$r\"; done; true" });
+    t({ requires: ['fc-cache'], id: 'fonts', name: 'Reconstruir caché de fuentes', desc: 'Ejecuta fc-cache.', cmd: 'fc-cache -f' });
+    t({ id: 'locate', name: 'Actualizar base de búsqueda', desc: 'Reindexa la base de datos de locate/plocate para que las búsquedas de archivos sean exactas.', admin: true, requires: ['updatedb|updatedb.plocate|updatedb.mlocate|updatedb.findutils'],
+      hint: 'No está instalado locate. Instálalo con «sudo apt install plocate» (Debian/Ubuntu), «sudo dnf install plocate» (Fedora) o «sudo pacman -S plocate» (Arch).',
+      cmd: 'U=""; for b in updatedb updatedb.plocate updatedb.mlocate updatedb.findutils; do for d in /usr/sbin /usr/bin /sbin /bin /usr/local/bin; do [ -z "$U" ] && [ -x "$d/$b" ] && U="$d/$b"; done; done; if [ -n "$U" ]; then "$U"; else echo "updatedb no encontrado" >&2; false; fi' });
+    t({ requires: ['journalctl'], hint: 'Este sistema no usa systemd-journald.', id: 'journal', name: 'Compactar diario del sistema', desc: 'Deja solo 7 días de registros.', admin: true, cmd: 'journalctl --vacuum-time=7d' });
   }
   if (IS_WIN) {
     t({ id: 'flush-dns', name: 'Vaciar caché DNS', desc: 'ipconfig /flushdns.', recommended: true, cmd: 'ipconfig /flushdns' });
@@ -204,15 +206,43 @@ function tasks() {
   return T;
 }
 
+async function missingFor(t) {
+  for (const alts of t.requires || []) {
+    let found = false;
+    for (const b of alts.split('|')) if (await U.which(b)) { found = true; break; }
+    if (!found) return alts.split('|')[0];
+  }
+  return null;
+}
+
+/** Tareas con su disponibilidad en este equipo. */
+async function tasksWithStatus() {
+  const out = [];
+  for (const t of tasks()) {
+    const miss = await missingFor(t);
+    out.push({ ...t, available: !miss, unavailableReason: miss ? (t.hint || `Requiere «${miss}», que no está instalado.`) : null });
+  }
+  return out;
+}
+
 async function runTask(id) {
   const t = tasks().find(x => x.id === id);
   if (!t) return { ok: false, error: 'Tarea desconocida' };
+  const miss = await missingFor(t);
+  if (miss) return { ok: false, error: t.hint || `Requiere «${miss}», que no está instalado.` };
   let r;
   if (t.ps) r = await U.ps(t.ps, { timeout: 600000 });
   else if (t.admin) r = await U.runAdmin(t.cmd);
   else r = await U.runShell(t.cmd, { timeout: 1800000 });
   store.addHistory({ type: 'mantenimiento', detail: t.name + (r.ok ? ' ✓' : ' ✗') });
-  return { ok: r.ok, output: (r.stdout || '') + (r.stderr || ''), error: r.error };
+  let error = null;
+  if (!r.ok) {
+    const txt = ((r.stderr || '') + ' ' + (r.error || '')).trim();
+    if (/did not grant permission|dismissed|cancel|User did not|Request dismissed|126/i.test(txt)) error = 'Se canceló la solicitud de contraseña de administrador.';
+    else if (/No authentication agent|pkexec.*not found|polkit/i.test(txt)) error = 'No hay un agente de autenticación (polkit) para pedir la contraseña de administrador.';
+    else error = txt.split(/\r?\n/).filter(Boolean).slice(-2).join(' ') || 'El comando terminó con error.';
+  }
+  return { ok: r.ok, output: (r.stdout || '') + (r.stderr || ''), error };
 }
 
 // ---------------- Procesos pesados ----------------
@@ -230,4 +260,4 @@ function killProcess(pid) {
   try { process.kill(pid); return true; } catch { return false; }
 }
 
-module.exports = { listStartup, toggleStartup, removeStartup, tasks, runTask, heavyProcesses, killProcess, parseDesktop };
+module.exports = { listStartup, toggleStartup, removeStartup, tasks, tasksWithStatus, runTask, heavyProcesses, killProcess, parseDesktop };

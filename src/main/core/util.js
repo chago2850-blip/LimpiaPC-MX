@@ -159,7 +159,12 @@ function ps(command, opts = {}) {
 
 async function which(bin) {
   const r = IS_WIN ? await run('where', [bin]) : await run('/bin/sh', ['-c', `command -v ${bin}`]);
-  return r.ok && r.stdout.trim() ? r.stdout.trim().split(/\r?\n/)[0] : null;
+  if (r.ok && r.stdout.trim()) return r.stdout.trim().split(/\r?\n/)[0];
+  if (!IS_WIN) for (const d of ['/usr/sbin', '/sbin', '/usr/local/sbin', '/usr/local/bin', '/opt/homebrew/bin']) {
+    const p = path.join(d, bin);
+    try { fs.accessSync(p, fs.constants.X_OK); return p; } catch {}
+  }
+  return null;
 }
 
 /** Ejecuta con privilegios de administrador (UAC / pkexec / osascript). */

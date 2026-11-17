@@ -17,7 +17,7 @@ window.Views = window.Views || {};
 
     async tasks(el) {
       const tasks = await lpc.call('performance.tasks');
-      el.innerHTML = `<div class="card"><div class="list">${tasks.map(t => `<label class="item"><input type="checkbox" data-id="${t.id}" ${t.recommended ? 'checked' : ''}><div class="t"><b>${esc(t.name)} ${t.recommended ? '<span class="pill ok">Recomendada</span>' : ''}</b><span>${esc(t.desc)}</span></div><div class="v" id="st-${t.id}">${t.admin ? '<span class="pill warn">Admin</span>' : ''}</div></label>`).join('')}</div></div>
+      el.innerHTML = `<div class="card"><div class="list">${tasks.map(t => `<label class="item" ${t.available === false ? `style="opacity:.55" data-tip="${esc(t.unavailableReason)}"` : ''}><input type="checkbox" data-id="${t.id}" ${t.recommended && t.available !== false ? 'checked' : ''} ${t.available === false ? 'disabled' : ''}><div class="t"><b>${esc(t.name)} ${t.recommended ? '<span class="pill ok">Recomendada</span>' : ''}</b><span>${esc(t.available === false ? t.unavailableReason : t.desc)}</span></div><div class="v" id="st-${t.id}">${t.available === false ? '<span class="pill">No instalado</span>' : t.admin ? '<span class="pill warn">Admin</span>' : ''}</div></label>`).join('')}</div></div>
         <div class="card" id="out" style="margin-top:14px;display:none"><h3>Resultado</h3><pre class="out" id="log"></pre></div>
         <div class="bottombar"><span class="muted">Las tareas marcadas como Admin te pedirán tu contraseña.</span><span class="spacer"></span><button class="btn primary big" id="run">${ICONS.play} Ejecutar</button></div>`;
       $('#run', el).onclick = async e => {

@@ -109,7 +109,7 @@ p.lead { color: var(--muted); margin: 0 0 22px; max-width: 760px; line-height: 1
 .list { display: flex; flex-direction: column; gap: 2px; }
 .item { display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; transition: background .15s; }
 .item:hover { background: var(--glass); } .item .t { min-width: 0; } .item .t b { font-weight: 560; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.item .t span { color: var(--muted); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item .t > span { color: var(--muted); font-size: 12px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .item .v { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; display: flex; gap: 8px; align-items: center; }
 .split { display: grid; grid-template-columns: 300px 1fr; gap: 16px; min-height: calc(100vh - 210px); }
 .split > .card { overflow: auto; max-height: calc(100vh - 210px); }

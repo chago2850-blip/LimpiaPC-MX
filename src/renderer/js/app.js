@@ -65,6 +65,19 @@
     catch (e) { console.error(e); view.innerHTML = `<div class="empty">${ICONS.warn}<h2>Ocurrió un error</h2><p class="muted sel-text">${esc(e.message)}</p></div>`; }
   }
   App.go = go;
+  // Tooltips: cualquier elemento con data-tip
+  const tip = $('#tip'); let tipEl = null;
+  document.addEventListener('mouseover', e => {
+    const t = e.target.closest('[data-tip]');
+    if (!t || !t.dataset.tip) { tip.style.display = 'none'; tipEl = null; return; }
+    if (t === tipEl) return;
+    tipEl = t; tip.textContent = t.dataset.tip; tip.style.display = 'block';
+    const r = t.getBoundingClientRect(), w = tip.offsetWidth, hgt = tip.offsetHeight;
+    let x = Math.min(window.innerWidth - w - 10, Math.max(10, r.left + r.width / 2 - w / 2));
+    let y = r.top - hgt - 8; if (y < 8) y = r.bottom + 8;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  });
+  document.addEventListener('scroll', () => { tip.style.display = 'none'; tipEl = null; }, true);
   document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) go(g.dataset.go); });
 
   // Indicadores de la barra lateral
